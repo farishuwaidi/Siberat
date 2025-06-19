@@ -14,9 +14,15 @@ func main() {
 	config.LoadDB()
 
 	config.DB.AutoMigrate(&entity.User{})
-	
+
 	r := gin.Default()
 	api := r.Group("/api")
+
+	api.GET("/", func (c* gin.Context)  {
+		c.JSON(200, gin.H{
+			"message": "test",
+		})
+	})
 
 	api.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
