@@ -2,6 +2,7 @@ package helper
 
 import (
 	"Siberat/entity"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -27,4 +28,24 @@ func GenerateToken(user *entity.User) (string, error) {
 	ss, err := token.SignedString(mySigningKey)
 
 	return ss, err
+}
+
+func ValidateToken(tokenString string) (*int, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token)(interface{}, error){
+		return mySigningKey, nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, errors.New("Invalid token signature")
+		}
+		return nil, errors.New("Your token was expired")
+	}
+
+	claims, ok := token.Claims.(*JWTClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("your token was expired")
+	}
+
+	return &claims.ID, nil
 }
